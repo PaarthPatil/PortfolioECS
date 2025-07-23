@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Paarth Patil's Portfolio</title>
+  <style>
+    /* RESET */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      scroll-behavior: smooth;
+    }
+
+    html {
+      height: 100%;
+    }
+
+    /* CMD Shell Feel - MODIFIED */
+    body {
+      height: 100%;
+      background: black;
+      color: #00ff00;
+      font-family: 'Courier New', monospace;
+      overflow-x: hidden;
+      border: 2px solid #00ff00; /* CMD-like border */
+      padding: 10px; /* Padding inside the "shell" */
+      position: relative; /* Needed for z-index of other elements */
+    }
+
+    /* Custom Scrollbar for WebKit (Chrome, Safari) */
+    body::-webkit-scrollbar {
+      width: 8px;
+    }
+    body::-webkit-scrollbar-track {
+      background: #333;
+    }
+    body::-webkit-scrollbar-thumb {
+      background: #00ff00;
+      border-radius: 4px;
+    }
+    body::-webkit-scrollbar-thumb:hover {
+      background: #00cc00;
+    }
+
+
+    /* Boot screen */
+    #boot-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: flex-start;
+      padding: 2rem;
+      z-index: 9999;
+      font-size: 1rem;
+      font-family: 'Courier New', Courier, monospace;
+      white-space: pre-wrap;
+      overflow-y: auto;
+      box-sizing: border-box;
+    }
+
+    /* ASCII Rain Background */
+    .ascii-rain {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      filter: blur(1px); /* Added for minimal blur */
+    }
+
+    canvas {
+      display: block;
+    }
+
+    /* NAVIGATION BAR - Adjusted for body padding */
+    nav {
+      position: fixed;
+      top: 10px; /* Adjusted to respect body padding */
+      left: 10px; /* Adjusted to respect body padding */
+      width: calc(100% - 20px); /* Adjusted to respect body padding */
+      background: black;
+      z-index: 999;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #00ff00;
+    }
+
+    .logo {
+      font-weight: bold;
+      color: #00ff00;
+      cursor: pointer;
+      background: black;
+      padding: 4px 8px;
+    }
+
+    /* Glitch effect for Nav Logo on hover */
+    .nav-glitch-logo {
+      position: relative;
+      display: inline-block;
+      transition: color 0.3s ease;
+    }
+
+    .nav-glitch-logo:hover {
+      color: #00ffff;
+      animation: navGlitchEffect 0.5s infinite;
+    }
+
+    /* Keyframes for Nav Glitch Effect */
+    @keyframes navGlitchEffect {
+      0% { text-shadow: 1px 0 red, -1px 0 blue; transform: translateX(0); }
+      25% { text-shadow: -1px 0 red, 1px 0 blue; transform: translateX(-2px); }
+      50% { text-shadow: 1px 0 red, -1px 0 blue; transform: translateX(2px); }
+      75% { text-shadow: -1px 0 red, 1px 0 blue; transform: translateX(-1px); }
+      100% { text-shadow: 1px 0 red, -1px 0 blue; transform: translateX(0); }
+    }
+
+    ul.nav-links {
+      list-style: none;
+      display: flex;
+      gap: 20px;
+    }
+
+    ul.nav-links li a {
+      color: #00ff00;
+      text-decoration: none;
+      position: relative;
+      transition: transform 0.3s ease;
+    }
+
+    ul.nav-links li a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -2px;
+      width: 100%;
+      height: 2px;
+      background: #00ff00;
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+      transform-origin: left;
+    }
+
+    ul.nav-links li a:hover::after {
+      transform: scaleX(1);
+      box-shadow: 0 0 8px #00ff00;
+    }
+
+    ul.nav-links li a:hover {
+      color: #0f0;
+      text-shadow: 0 0 8px #0f0, 0 0 15px #0f0;
+    }
+
+    /* MAIN HERO SECTION - Adjusted for body padding and nav height */
+    header {
+      height: calc(100vh - 20px); /* Adjusted for body top/bottom padding */
+      padding-top: 80px; /* Space for fixed nav */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      flex-direction: column;
+      z-index: 10;
+      position: relative;
+    }
+
+    .black-patch {
+      background: rgba(0, 0, 0, 0.85);
+      padding: 20px 40px;
+      border-radius: 8px;
+    }
+
+    .glitch {
+      font-size: 2.5rem;
+      text-transform: uppercase;
+      animation: glitch 1s infinite;
+    }
+
+    @keyframes glitch {
+      0% { text-shadow: 2px 2px #ff00ff; }
+      25% { text-shadow: -2px 2px #00ffff; }
+      50% { text-shadow: 2px -2px #ff00ff; }
+      75% { text-shadow: -2px -2px #00ffff; }
+      100% { text-shadow: 2px 2px #ff00ff; }
+    }
+
+    .typing {
+      margin-top: 10px;
+      font-size: 1.2rem;
+      color: #00ff00;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 1ch;
+      animation: blink 0.8s infinite;
+    }
+
+    @keyframes blink {
+      0%, 50% { background: #00ff00; }
+      50.01%, 100% { background: transparent; }
+    }
+
+    /* SECTIONS - Adjusted for body padding and nav height */
+    section {
+      min-height: calc(100vh - 20px); /* Adjusted for body top/bottom padding */
+      padding: 80px 20px 20px; /* Adjusted padding to account for fixed nav */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Section Content Box with Black Background and Initial Hidden State */
+    .section-content {
+      background: rgba(0, 0, 0, 0.85);
+      padding: 40px;
+      border-radius: 8px;
+      border: 1px solid #00ff00;
+      max-width: 800px;
+      width: 100%;
+      text-align: left;
+      opacity: 0; /* Changed from height:0 for header to allow flexible height */
+      transition: opacity 0.6s ease; /* Transition for opacity only */
+    }
+    
+    /* Ensure content is hidden when not typing */
+    .section-content.hidden-for-typing {
+        opacity: 0;
+    }
+
+    .section-content.typing-active {
+      opacity: 1;
+      /* height: auto; Removed height:auto here, as content should naturally flow */
+      overflow: visible;
+    }
+
+    section h2 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      color: #00ff00;
+    }
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      padding: 0 20px;
+    }
+
+    .project-card {
+      background: rgba(0, 0, 0, 0.6);
+      padding: 20px;
+      border: 1px solid #00ff00;
+      border-radius: 8px;
+    }
+
+    .project-card i {
+      font-size: 24px;
+      margin-bottom: 10px;
+      color: #00ff00;
+    }
+
+    /* Footer - Adjusted for body padding */
+    footer {
+      background: black;
+      padding: 20px;
+      border-top: 1px solid #00ff00;
+      position: relative;
+      z-index: 10;
+      margin: 0 -10px -10px; /* Compensate for body padding */
+      width: calc(100% + 20px); /* Compensate for body padding */
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .glitch {
+        font-size: 2rem;
+      }
+      ul.nav-links {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-end;
+        background: #000;
+      }
+      .section-content {
+        padding: 20px;
+      }
+      nav {
+        top: 0;
+        left: 0;
+        width: 100%;
+        padding: 10px;
+      }
+      header, section {
+        padding-top: 60px; /* Adjust for smaller nav */
+        min-height: calc(100vh - 0px); /* Adjust for smaller nav */
+      }
+      footer {
+        margin: 0;
+        width: 100%;
+      }
+      body {
+        padding: 0;
+        border: none; /* Remove border on small screens if it looks bad */
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="boot-screen"></div>
+
+  <canvas class="ascii-rain"></canvas>
+
+  <nav>
+    <div class="logo" onclick="typeHomeSectionAndScroll()"><span class="nav-glitch-logo">PaarthP</span></div>
+    <ul class="nav-links">
+      <li><a href="#about" class="nav-link-typing" data-target="about">About Me</a></li>
+      <li><a href="#skills" class="nav-link-typing" data-target="skills">Skills</a></li>
+      <li><a href="#projects" class="nav-link-typing" data-target="projects">Projects</a></li>
+      <li><a href="#contact" class="nav-link-typing" data-target="contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <header id="home">
+    <div class="black-patch">
+      <h1 id="home-greeting"><span class="typing-line">Hello, I'm <span class="glitch">Paarth P</span></span></h1>
+      <div class="typing" id="subtitle"></div>
+    </div>
+  </header>
+
+  <section id="about">
+    <div class="section-content">
+      <h2>About Me</h2>
+      <p>
+        <span class="typing-line">Initializing AboutMe.exe...</span><br>
+        <span class="typing-line">My journey in software development began with fascination for Games. I try to build basic projects.</span><br>
+        <span class="typing-line">Im still in the early stages so its mainly leaarning </span><br>
+        <span class="typing-line">Beyond the code, I am constantly exploring new stuff like Blender, Assembly Language(NASM)</span>
+      </p>
+    </div>
+  </section>
+
+  <section id="skills">
+    <div class="section-content">
+      <h2>Skills</h2>
+      <p>
+        <span class="typing-line">Scanning for skill modules...</span><br>
+        <span class="typing-line">**Languages:** HTML5, CSS3, C/C++, Javascript basics</span><br>
+        <span class="typing-line">**Web Technologies:** Bootstrap, and Still Learning more</span><br>
+        <span class="typing-line">**Mobile Development:** Upcoming</span><br>
+        <span class="typing-line">**Tools & Platforms:** Git/GitHub, Linux CLI, Docker (Basic), VS Code</span><br>
+        <span class="typing-line">**Databases:** MySQl [BASICS]</span>
+      </p>
+    </div>
+  </section>
+
+  <section id="projects">
+    <div class="section-content">
+      <h2>Projects</h2>
+      <p>
+        <span class="typing-line">Accessing project directory...</span><br>
+        <span class="typing-line">**Banking System:** Basic Banking CLI app based on C (Plan to add user and authentication system to that).</span><br>
+        <span class="typing-line">**Sniper Shooter:** Basic JavaScript game made with online tutorial.</span><br>
+        <span class="typing-line">For more details, please refer to my GitHub repositories.</span>
+      </p>
+      <div class="projects-grid">
+        <div class="project-card"><i>🏦</i><p>Banking System {Local}</p></div>
+        <div class="project-card"><i>&#128299;</i><p>Sniper Shooter Game</p></div>
+        <div class="project-card"><i>🌐</i><p>Upcoming</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="section-content">
+      <h2>Contact</h2>
+      <p>
+        <span class="typing-line">Establishing secure communication channel...</span><br>
+        <span class="typing-line">**Email:** paarth.s.patil@gmail.com</span><br>
+        <span class="typing-line">**GitHub:** github.com/PaarthPatil</span><br>
+        <span class="typing-line">**LinkedIn:** linkedin.com/in/paarth-patil</span><br>
+        <span class="typing-line">Feel free to connect for collaborations or opportunities.</span>
+      </p>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2025 Paarth P. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Global variable to keep track of typing animation state for any section
+    let typingActive = false;
+    let currentTypingTimeout = null; // Renamed for clarity across different typing functions
+
+    // Smooth Scroll Navigation
+    function scrollToSection(id) {
+      const section = document.getElementById(id);
+      section.scrollIntoView({ behavior: "smooth" });
+    }
+
+    // Boot Screen Typing Animation
+    const bootScreen = document.getElementById('boot-screen');
+    const logs = [
+      'Booting UnKnownOS v1.0...',
+      'Loading system configuration...',
+      'Connecting to network...',
+      'Establishing secure connection...',
+      'Access granted...',
+      '',
+      'C:\\Users\\PaarthP> _'
+    ];
+
+    let currentLogLineIndex = 0;
+    let charIndexInLog = 0;
+    let currentLineElement = null;
+
+    function typeBootLine() {
+      if (currentLogLineIndex < logs.length) {
+        if (!currentLineElement) {
+          currentLineElement = document.createElement('span');
+          bootScreen.appendChild(currentLineElement);
+          bootScreen.scrollTop = bootScreen.scrollHeight;
+        }
+
+        if (charIndexInLog <= logs[currentLogLineIndex].length) {
+          currentLineElement.textContent = logs[currentLogLineIndex].substring(0, charIndexInLog);
+          if (currentLogLineIndex === logs.length - 1) {
+             currentLineElement.innerHTML += '<span class="cursor">&nbsp;</span>';
+          }
+          charIndexInLog++;
+          setTimeout(typeBootLine, 30);
+        } else {
+          currentLineElement = null;
+          charIndexInLog = 0;
+          currentLogLineIndex++;
+          setTimeout(typeBootLine, 300);
+        }
+      } else {
+        setTimeout(() => bootScreen.style.display = 'none', 500);
+      }
+    }
+    typeBootLine();
+
+    // --- Start of MODIFIED `loop` function ---
+    // Typing subtitle animation (Header)
+    const phrases = ["Aspirant", "Avid Learner", "Student", "2nd Year"]; 
+    let i = 0; // Current phrase index
+    let j = 0; // Current character index within the phrase
+    let isDeleting = false;
+    const subtitle = document.getElementById("subtitle");
+
+    function loop() {
+      // If another section's typing is active and it's not the home section (where subtitle lives),
+      // clear the subtitle and stop this loop.
+      if (typingActive && !document.getElementById('home').classList.contains('active-home-typing')) {
+          subtitle.innerHTML = '';
+          clearTimeout(currentTypingTimeout);
+          // Reset state when cleared
+          i = 0; j = 0; // No currentPhrase array to clear here
+          isDeleting = false;
+          currentTypingTimeout = null;
+          return; // Exit the function
+      }
+
+      // Get the current full phrase
+      const currentFullPhrase = phrases[i];
+      let displayPhrase = '';
+
+      if (isDeleting) {
+        // Deleting phase: remove characters
+        displayPhrase = currentFullPhrase.substring(0, j - 1);
+        j--;
+      } else {
+        // Typing phase: add characters
+        displayPhrase = currentFullPhrase.substring(0, j + 1);
+        j++;
+      }
+
+      subtitle.innerHTML = displayPhrase + '<span class="cursor">&nbsp;</span>';
+
+      let typeSpeed = 100; // Default typing speed
+      if (isDeleting) {
+        typeSpeed = 50; // Faster deleting speed
+      }
+
+      // If the current phrase is fully typed
+      if (!isDeleting && j === currentFullPhrase.length + 1) { // +1 because j increments one extra time
+        typeSpeed = 1000; // Pause before starting to delete
+        isDeleting = true; // Switch to deleting mode after the pause
+      }
+      // If the current phrase is fully deleted
+      else if (isDeleting && j === 0) {
+        isDeleting = false; // Switch back to typing mode
+        i = (i + 1) % phrases.length; // Move to the next phrase, loop back if at the end
+        typeSpeed = 500; // Short pause before typing the next phrase
+      }
+
+      // Schedule the next iteration of the loop
+      currentTypingTimeout = setTimeout(loop, typeSpeed);
+    }
+    // --- End of MODIFIED `loop` function ---
+
+    
+    bootScreen.addEventListener('transitionend', () => {
+      if (bootScreen.style.display === 'none') {
+        typeHomeSectionContent(); 
+      }
+    });
+   
+    if (getComputedStyle(bootScreen).display === 'none') {
+        typeHomeSectionContent(); 
+    }
+
+
+ 
+    function typeSectionContent(sectionElement, linesContainer) {
+        if (typingActive) {
+            clearTimeout(currentTypingTimeout);
+            stopAndResetAllTyping(); // Reset any currently typing section
+        }
+
+        typingActive = true;
+        sectionElement.classList.add('active-home-typing'); // Use a specific class for active typing
+
+        const linesToType = linesContainer.querySelectorAll('.typing-line');
+        const contentContainer = linesContainer.closest('.section-content') || linesContainer.closest('.black-patch');
+
+        // Store original content and clear for re-typing
+        linesToType.forEach(line => {
+            if (!line.hasAttribute('data-full-text')) {
+                line.setAttribute('data-full-text', line.innerHTML); // Use innerHTML to preserve glitch span
+            }
+            line.innerHTML = '';
+            line.style.opacity = 0;
+        });
+
+        // Hide main content container initially if it's not the home black-patch
+        if (contentContainer && !contentContainer.classList.contains('black-patch')) {
+            contentContainer.classList.remove('typing-active');
+            contentContainer.classList.add('hidden-for-typing');
+        } else {
+            // For black-patch, just ensure it's visible but lines are reset
+            contentContainer.classList.add('typing-active');
+        }
+
+
+        let lineIndex = 0;
+        let charIndex = 0;
+        let currentLineSpan = null;
+
+        // Small delay before revealing content box and starting typing
+        setTimeout(() => {
+            if (contentContainer && !contentContainer.classList.contains('black-patch')) {
+                contentContainer.classList.remove('hidden-for-typing');
+                contentContainer.classList.add('typing-active'); // Reveal the box
+            }
+            startTypingLine();
+        }, 300);
+
+        function startTypingLine() {
+            if (lineIndex < linesToType.length) {
+                currentLineSpan = linesToType[lineIndex];
+                currentLineSpan.style.opacity = 1;
+
+                const fullText = currentLineSpan.getAttribute('data-full-text');
+                currentLineSpan.innerHTML = ''; // Clear for re-typing
+                charIndex = 0;
+
+                typeChar(fullText);
+            } else {
+                typingActive = false;
+                sectionElement.classList.remove('active-home-typing');
+                if (sectionElement.id === 'home') {
+                    // This is where the subtitle loop gets re-initiated after the H1 text is done.
+                    // Make sure it clears any previous states.
+                    i = 0; j = 0; isDeleting = false; // Reset subtitle state
+                    loop(); 
+                }
+            }
+        }
+
+        function typeChar(fullText) {
+            if (charIndex < fullText.length) {
+                // Handle glitch span within the line
+                if (fullText.substring(charIndex, charIndex + '<span class="glitch">'.length) === '<span class="glitch">') {
+                    const closingTagIndex = fullText.indexOf('</span>', charIndex);
+                    if (closingTagIndex !== -1) {
+                        currentLineSpan.innerHTML += fullText.substring(charIndex, closingTagIndex + '</span>'.length);
+                        charIndex = closingTagIndex + '</span>'.length;
+                    } else {
+                        // Fallback if closing tag not found
+                        currentLineSpan.innerHTML += fullText[charIndex];
+                        charIndex++;
+                    }
+                } else if (fullText.substring(charIndex, charIndex + '<br>'.length) === '<br>') {
+                    currentLineSpan.innerHTML += '<br>';
+                    charIndex += '<br>'.length;
+                } else {
+                    currentLineSpan.innerHTML += fullText[charIndex];
+                    charIndex++;
+                }
+                currentTypingTimeout = setTimeout(() => typeChar(fullText), 40);
+            } else {
+                lineIndex++;
+                currentTypingTimeout = setTimeout(startTypingLine, 600);
+            }
+        }
+    }
+
+    // Function specifically for Home section typing
+    function typeHomeSectionContent() {
+        const homeSection = document.getElementById('home');
+        const homeContent = homeSection.querySelector('.black-patch');
+        typeSectionContent(homeSection, homeContent.querySelector('h1')); // Pass the h1 element as linesContainer
+        // The subtitle typing loop will be restarted by typeSectionContent after the h1 is done
+    }
+
+
+    // Function to stop any active typing and reset the content
+    function stopAndResetAllTyping() {
+        if (currentTypingTimeout) {
+            clearTimeout(currentTypingTimeout);
+        }
+        typingActive = false;
+
+        // Reset subtitle (header) typing
+        subtitle.innerHTML = '';
+        i = 0; j = 0; // Only these are needed for subtitle loop
+        isDeleting = false; 
+        currentTypingTimeout = null; // Clear the subtitle's timeout
+        
+        // Find any active section-content or black-patch that was typing
+        const currentlyTypingContent = document.querySelector('.section-content.typing-active, .black-patch.typing-active');
+        if (currentlyTypingContent) {
+            currentlyTypingContent.classList.remove('typing-active');
+            currentlyTypingContent.classList.remove('hidden-for-typing'); // Ensure it's not hidden
+
+            currentlyTypingContent.querySelectorAll('.typing-line').forEach(line => {
+                // Restore original full text
+                if (line.hasAttribute('data-full-text')) {
+                    line.innerHTML = line.getAttribute('data-full-text');
+                }
+                line.style.opacity = 1;
+            });
+        }
+        // Remove active-home-typing class from home section
+        document.getElementById('home').classList.remove('active-home-typing');
+    }
+
+
+    // Attach event listeners to navigation links
+    document.querySelectorAll('.nav-link-typing').forEach(link => {
+      link.addEventListener('click', function(event) {
+        event.preventDefault(); // Prevent default hash behavior
+        const targetId = this.getAttribute('data-target');
+        const targetSection = document.getElementById(targetId);
+
+        stopAndResetAllTyping(); // Stop any current typing before starting a new one
+
+        // Scroll to the section first
+        targetSection.scrollIntoView({ behavior: "smooth" });
+
+        // Wait a moment for scroll to start, then initiate typing
+        setTimeout(() => {
+            typeSectionContent(targetSection, targetSection.querySelector('.section-content p'));
+        }, 300);
+      });
+    });
+
+    // Special handling for the PaarthP logo (top-left)
+    function typeHomeSectionAndScroll() {
+        stopAndResetAllTyping(); // Stop any current typing before starting new one
+        scrollToSection('home'); // Smooth scroll to home
+        // Delay before starting home typing to allow scroll to begin
+        setTimeout(typeHomeSectionContent, 300);
+    }
+
+
+    // Intersection Observer for initial visibility only
+    const sections = document.querySelectorAll("section");
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.target.id === 'home') {
+          if (entry.isIntersecting) {
+            // Home section is special; its content is handled by typeHomeSectionContent
+            // We just ensure the black-patch is initially ready
+            entry.target.querySelector('.black-patch').classList.add('typing-active'); // Make sure it's visible after boot
+          } else {
+            entry.target.querySelector('.black-patch').classList.remove('typing-active');
+            stopAndResetAllTyping(); // If scrolled out of home, reset home content too
+          }
+        } else {
+          // For other sections, reset if scrolled out of view without nav click
+          if (!entry.isIntersecting) {
+              const contentDiv = entry.target.querySelector('.section-content');
+              contentDiv.classList.remove('typing-active');
+              contentDiv.classList.add('hidden-for-typing'); // Hide again
+              contentDiv.querySelectorAll('.typing-line').forEach(line => {
+                  line.innerHTML = ''; // Clear text
+                  line.style.opacity = 0; // Hide
+              });
+          }
+        }
+      });
+    }, { threshold: 0.2 });
+
+    sections.forEach(section => {
+        // Prepare content for typing animation by storing full text and clearing
+        if (section.id === 'home') {
+            const homeH1Span = section.querySelector('#home-greeting .typing-line');
+            if (homeH1Span && !homeH1Span.hasAttribute('data-full-text')) {
+                homeH1Span.setAttribute('data-full-text', homeH1Span.innerHTML);
+                homeH1Span.innerHTML = '';
+            }
+        } else {
+            section.querySelectorAll('.typing-line').forEach(line => {
+                if (!line.hasAttribute('data-full-text')) {
+                    line.setAttribute('data-full-text', line.textContent);
+                }
+                line.textContent = '';
+                line.style.opacity = 0;
+            });
+            // Initially hide section content boxes
+            const contentBox = section.querySelector('.section-content');
+            if (contentBox) {
+                contentBox.classList.add('hidden-for-typing');
+            }
+        }
+        observer.observe(section);
+    });
+
+
+    // ASCII Rain
+    const canvas = document.querySelector(".ascii-rain");
+    const ctx = canvas.getContext("2d");
+
+    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth;
+
+    const letters = Array(256).join("1").split("");
+
+    function drawRain() {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#ffffff";
+
+      letters.forEach((y_pos, index) => {
+        const text = String.fromCharCode(33 + Math.random() * 94);
+        const x_pos = index * 10;
+        ctx.fillText(text, x_pos, y_pos);
+
+        if (y_pos > canvas.height + Math.random() * 10000) {
+          letters[index] = 0;
+        } else {
+          letters[index] = parseInt(y_pos) + 10;
+        }
+      });
+    }
+
+    setInterval(drawRain, 50);
+
+    window.addEventListener("resize", () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const newColumns = Math.floor(window.innerWidth / 10);
+      letters.length = newColumns;
+      for (let k = 0; k < newColumns; k++) {
+        if (letters[k] === undefined) {
+          letters[k] = 0;
+        }
+      }
+    });
+  </script>
+
+</body>
+</html>
